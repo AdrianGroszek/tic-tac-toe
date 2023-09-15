@@ -1,9 +1,19 @@
 'use strict';
+const playAgainBtn = document.querySelector('.play-again-btn');
+const resetScoreBtn = document.querySelector('.reset-btn');
+
+const circleScoreDisplay = document.querySelector('.circle-score');
+const crossScoreDisplay = document.querySelector('.cross-score');
+const activePlayerCircle = document.querySelector('.score-box-circle');
+const activePlayerCross = document.querySelector('.score-box-cross');
 
 const gameBoard = document.querySelector('.game-board');
 const playerDisplay = document.querySelector('.player-turn');
 const startCells = ['', '', '', '', '', '', '', '', ''];
 
+let circleScore = 0;
+let crossScore = 0;
+let count = 0;
 let go = 'circle';
 playerDisplay.textContent = `${go} goes first`;
 
@@ -27,11 +37,15 @@ const addGo = function (e) {
 	if (go === 'circle') {
 		playerDisplay.classList.remove('cross-turn');
 		playerDisplay.classList.add('circle-turn');
+		activePlayerCross.classList.remove('move');
+		activePlayerCircle.classList.add('move');
 	}
 
 	if (go === 'cross') {
 		playerDisplay.classList.remove('circle-turn');
 		playerDisplay.classList.add('cross-turn');
+		activePlayerCross.classList.add('move');
+		activePlayerCircle.classList.remove('move');
 	}
 
 	playerDisplay.textContent = `It is now ${go}'s go.`;
@@ -40,8 +54,9 @@ const addGo = function (e) {
 };
 
 const checkIsWins = function () {
-	const allSquares = document.querySelectorAll('.square');
+	count++;
 
+	const allSquares = document.querySelectorAll('.square');
 	const winRules = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -65,6 +80,11 @@ const checkIsWins = function () {
 			);
 			playerDisplay.classList.remove('cross-turn');
 			playerDisplay.classList.add('circle-turn');
+			count = 0;
+			circleScore++;
+			circleScoreDisplay.textContent = `${circleScore.toString()}`;
+			activePlayerCircle.classList.remove('move');
+			activePlayerCross.classList.remove('move');
 			return;
 		}
 	});
@@ -81,9 +101,48 @@ const checkIsWins = function () {
 			);
 			playerDisplay.classList.remove('circle-turn');
 			playerDisplay.classList.add('cross-turn');
+			count = 0;
+			crossScore++;
+			crossScoreDisplay.textContent = `${crossScore.toString()}`;
+			activePlayerCircle.classList.remove('move');
+			activePlayerCross.classList.remove('move');
 			return;
 		}
 	});
+
+	if (
+		count === 9 &&
+		(playerDisplay.textContent !== 'Cross Wins!' ||
+			playerDisplay.textContent !== 'circle Wins!')
+	) {
+		playerDisplay.textContent = 'Draw! Play Again!';
+		count = 0;
+		activePlayerCircle.classList.remove('move');
+		activePlayerCross.classList.remove('move');
+	}
+};
+
+const playAgain = function () {
+	gameBoard.innerHTML = '';
+	go = 'circle';
+	count = 0;
+	playerDisplay.textContent = `${go} goes first`;
+	playerDisplay.classList.add('circle-turn');
+	playerDisplay.classList.remove('cross-turn');
+	activePlayerCircle.classList.add('move');
+	activePlayerCross.classList.remove('move');
+	createFields();
+};
+
+const resetScore = function () {
+	circleScore = 0;
+	crossScore = 0;
+	circleScoreDisplay.textContent = `${circleScore.toString()}`;
+	crossScoreDisplay.textContent = `${crossScore.toString()}`;
+	playAgain();
 };
 
 createFields();
+
+playAgainBtn.addEventListener('click', playAgain);
+resetScoreBtn.addEventListener('click', resetScore);
